@@ -6,6 +6,10 @@ const blogsRouter = require('./controllers/blogs')
 const middleware = require('./utils/middleware')
 const logger = require('./utils/logger')
 const mongoose = require('mongoose')
+const supertest = require('supertest')
+// const app = require('../app')
+
+const api = supertest(app)
 
 mongoose.set('strictQuery', false)
 
