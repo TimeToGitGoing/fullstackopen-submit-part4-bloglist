@@ -6,20 +6,25 @@ blogsRouter.get('/', async (request, response) => {
     response.json(blogs)
 })
 
-blogsRouter.get('/:id', (request, response, next) => {
-    Blog.findById(request.params.id)
-        .then(note => {
-        if (note) {
-            response.json(note)
+blogsRouter.get('/:id', async (request, response, next) => {
+    try {
+        const blog = await Blog.findById(request.params.id)
+        if (blog) {
+            response.json(blog)
         } else {
             response.status(404).end()
         }
-        })
-        .catch(error => next(error))
+        } catch(error) {
+            next(error)
+    }
 })
 
-blogsRouter.post('/', (request, response, next) => {
+blogsRouter.post('/', async (request, response, next) => {
     const body = request.body
+
+    if (!body.title || !body.url) {
+        return response.status(400).json({ error: 'Title and URL are required' })
+    }
   
     const blog = new Blog({
         title: body.title,
@@ -28,11 +33,12 @@ blogsRouter.post('/', (request, response, next) => {
         likes: body.likes,
     })
   
-    blog.save()
-      .then(savedBlog => {
-        response.json(savedBlog)
-      })
-      .catch(error => next(error))
-  })
+    try {
+        const savedBlog = await blog.save()
+        response.status(201).json(savedBlog)
+    } catch(exception) {
+        next(exception)
+    }
+})
 
-  module.exports = blogsRouter
+module.exports = blogsRouter
